@@ -1,0 +1,232 @@
+openapi: 3.0.3
+info:
+  title: Parking Control
+  description: Aplicação para controle de estacionamento de veículos
+  contact:
+    name: Alexandre Riff da Costa
+    email: alexandre.rdcosta@gmail.com
+    url: https://github.com/AlexandreRiff
+  version: 1.0.0
+tags:
+  - name: Parking
+paths:
+  /api/v1/parking:
+    post:
+      summary: Adicionar um novo registro de estacionamento
+      description: Adiciona um novo registro de estacionamento
+      operationId: saveParking
+      requestBody:
+        description: Adicione um novo registro de estacionamento
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingSaveDto'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingModel'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "campo inválido, não segue o padrão XXX0X00 ou XXX0000"
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "existe um estacionamento ativo para a placa: XXX0000"
+      tags:
+        - Parking
+
+    get:
+      summary: Retornar todos os registros de estacionamento
+      description: Retorna todos os registros de estacionamento
+      operationId: findAllParking
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParkingModel'
+      tags:
+        - Parking
+
+  /api/v1/parking/{id}:
+    get:
+      summary: Encontrar um registro de estacionamento por Id
+      description: Encontra um registro de estacionamento por Id
+      operationId: findByIdParking
+      parameters:
+        - name: id
+          in: path
+          description: 'Id do registro de estacionamento'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingModel'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "recurso não encontrado para o Id: 1"
+      tags:
+        - Parking
+
+    put:
+      summary: Atualizar um registro de estacionamento
+      description: Atualiza um registro de estacionamento
+      operationId: updateParking
+      parameters:
+        - name: id
+          in: path
+          description: 'Id do registro de estacionamento'
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingUpdateDto'
+        required: true
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingModel'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "campo inválido"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "recurso não encontrado para o Id: 1"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "a data e hora informada não pode ser inferior a data e hora de entrada"
+      tags:
+        - Parking
+
+    delete:
+      summary: Deletar um registro de estacionamento
+      operationId: deleteParking
+      parameters:
+        - name: id
+          in: path
+          description: 'Id do registro de estacionamento'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "estacionamento excluído com sucesso"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "recurso não encontrado para o Id: 1"
+      tags:
+        - Parking
+
+components:
+  schemas:
+    ParkingModel:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        licensePlate:
+          type: string
+          example: XXX000
+        entryDateTime:
+          type: string
+          format: date-time
+          example: 2022-01-01T01:00:00
+        exitDateTime:
+          type: string
+          format: date-time
+          example: 2022-01-01T02:00:00
+        totalParkingValue:
+          type: number
+          format: double
+          example: 10.00
+
+    ParkingSaveDto:
+      type: object
+      properties:
+        licensePlate:
+          type: string
+          example: XXX000
+  
+    ParkingUpdateDto:
+      type: object
+      properties:
+        exitDateTime:
+          type: string
+          format: date-time
+          example: 2022-01-01T02:00:00
